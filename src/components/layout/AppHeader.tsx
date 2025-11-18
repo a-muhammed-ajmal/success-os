@@ -2,7 +2,7 @@
 
 import { Button } from "components/ui/button";
 import { Bell, Menu, Search, Settings } from "lucide-react";
-import { useLayoutStore } from "store/layoutStore";
+import { useLayoutStore } from "src/store/layoutStore";
 
 export function AppHeader() {
   const { toggleSidebar } = useLayoutStore();

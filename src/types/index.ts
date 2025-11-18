@@ -6,6 +6,14 @@ export interface User {
   updated_at: string;
 }
 
+export interface Profile {
+  id: string;
+  email: string | null;
+  full_name: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Project {
   id: string;
   user_id: string;
@@ -32,4 +40,37 @@ export interface Task {
   completed_at: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface Transaction {
+  id: string;
+  user_id: string;
+  type: 'income' | 'expense';
+  amount: number;
+  category: string;
+  description: string | null;
+  date: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Affirmation {
+  id: string;
+  user_id: string;
+  text: string;
+  category: string | null;
+  is_active: boolean;
+  order_index: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Motivation {
+  id: string;
+  user_id: string;
+  quote: string;
+  author: string | null;
+  category: string | null;
+  is_active: boolean;
+  created_at: string;
 }
