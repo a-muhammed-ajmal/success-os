@@ -1,101 +1,91 @@
+// src/components/command-center/DailyDisciplineBank.tsx
 'use client';
 
-import { Button } from 'components/ui/button';
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'; // CORRECTED
+import { Button } from '@/components/ui/button'; // CORRECTED
+import { commandCenterService } from '@/services/commandCenterService'; // CORRECTED
+import type { Affirmation } from '@/types'; // CORRECTED
 import { useEffect, useState } from 'react';
-import { commandCenterService } from 'src/services/commandCenterService';
-import type { Affirmation } from 'src/types';
 
 interface DailyDisciplineBankProps {
-  focusTheme?: string;
-  onGenerateAffirmation?: () => void;
+  // Add any props if needed
 }
 
-export function DailyDisciplineBank({ focusTheme, onGenerateAffirmation }: DailyDisciplineBankProps) {
+export function DailyDisciplineBank({}: DailyDisciplineBankProps) {
   const [affirmations, setAffirmations] = useState<Affirmation[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [newAffirmation, setNewAffirmation] = useState('');
+  const [currentAffirmationIndex, setCurrentAffirmationIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [generatedAffirmation, setGeneratedAffirmation] = useState<string | null>(null);
+
+  const fetchAffirmations = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await commandCenterService.getAffirmations();
+      setAffirmations(data);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    loadAffirmations();
+    fetchAffirmations();
   }, []);
 
-  const loadAffirmations = async () => {
+  const handleNextAffirmation = () => {
+    setCurrentAffirmationIndex((prevIndex) => (prevIndex + 1) % affirmations.length);
+  };
+
+  const handleGenerateAffirmation = async () => {
+    setIsLoading(true);
+    setError(null);
+    setGeneratedAffirmation(null);
     try {
-      const data = await commandCenterService.getActiveAffirmations();
-      setAffirmations(data);
-    } catch (error) {
-      console.error('Error loading affirmations:', error);
+      const response = await fetch('/api/generate-affirmation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ focusTheme: 'Financial Discipline' }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate affirmation');
+      }
+
+      const data = await response.json();
+      setGeneratedAffirmation(data.affirmation);
+    } catch (err: any) {
+      setError(err.message);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const handleAddAffirmation = async () => {
-    if (!newAffirmation.trim()) return;
-
-    try {
-      await commandCenterService.addAffirmation(newAffirmation.trim());
-      setNewAffirmation('');
-      await loadAffirmations();
-    } catch (error) {
-      console.error('Error adding affirmation:', error);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-400"></div>
-      </div>
-    );
-  }
+  if (isLoading) return <LoadingSpinner />;
+  if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <div className="space-y-4">
-      {/* Add new affirmation */}
-      <div className="flex gap-2">
-        <input
-          type="text"
-          value={newAffirmation}
-          onChange={(e) => setNewAffirmation(e.target.value)}
-          placeholder="Add a new affirmation..."
-          className="flex-1 px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          onKeyPress={(e) => e.key === 'Enter' && handleAddAffirmation()}
-        />
-        <Button onClick={handleAddAffirmation} size="sm">
-          Add
-        </Button>
-      </div>
-
-      {/* Affirmations list */}
+    <div className="bg-background-secondary p-6 rounded-lg shadow-sm h-full flex flex-col">
+      <h2 className="text-xl font-semibold text-foreground mb-4">Daily Discipline Bank</h2>
       {affirmations.length === 0 ? (
-        <p className="text-gray-400 text-sm">
-          No affirmations yet. Add your first one above!
-        </p>
+        <p className="text-foreground-muted flex-grow">No affirmations loaded.</p>
       ) : (
-        <div className="space-y-2 max-h-64 overflow-y-auto">
-          {affirmations.map((affirmation) => (
-            <div key={affirmation.id} className="p-3 bg-gray-900 border border-gray-700 rounded-lg">
-              <p className="text-gray-200">{affirmation.text}</p>
-              {affirmation.category && (
-                <span className="text-xs text-gray-500 mt-1 inline-block">
-                  {affirmation.category}
-                </span>
-              )}
-            </div>
-          ))}
+        <div className="flex-grow flex flex-col items-center justify-center text-center">
+          <p className="text-lg font-medium text-foreground mb-4">
+            "{affirmations[currentAffirmationIndex].text}"
+          </p>
+          <Button variant="secondary" onClick={handleNextAffirmation} className="mb-4">
+            Next Affirmation
+          </Button>
         </div>
       )}
-
-      {/* Generate AI Affirmation Button */}
-      {onGenerateAffirmation && (
-        <Button
-          onClick={onGenerateAffirmation}
-          variant="outline"
-          className="w-full"
-        >
-          Generate AI Affirmation
-        </Button>
+      <Button onClick={handleGenerateAffirmation} disabled={isLoading}>
+        {isLoading ? <LoadingSpinner className="h-4 w-4" /> : 'Generate AI Affirmation'}
+      </Button>
+      {generatedAffirmation && (
+        <p className="text-sm text-green-400 mt-2 text-center">Generated: "{generatedAffirmation}"</p>
       )}
     </div>
   );

@@ -1,15 +1,16 @@
+// src/components/business/LeadsWidgetGrid.tsx
 'use client';
 
-import { CalendarCheck, CheckCircle, FileText, New, Phone, XCircle } from 'lucide-react';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
+import { useBusinessStore } from '@/store/businessStore';
+import { LeadStage } from '@/types';
+import { CalendarCheck, CheckCircle, FileText, Phone, Plus, XCircle } from 'lucide-react'; // Changed 'New' to 'Plus'
 import { useRouter } from 'next/navigation';
-import { useBusinessStore } from '../../store/businessStore';
-import { LeadStage } from '../../types';
-import { EmptyState } from '../shared/EmptyState';
-import { LoadingSpinner } from '../shared/LoadingSpinner';
 import { LeadsWidget } from './LeadsWidget';
 
 const stageConfig = {
-  new: { icon: New, color: 'text-gray-500', title: 'New Leads' },
+  new: { icon: Plus, color: 'text-gray-500', title: 'New Leads' }, // Changed icon from New to Plus
   contacted: { icon: Phone, color: 'text-blue-500', title: 'Contacted' },
   meeting: { icon: CalendarCheck, color: 'text-yellow-500', title: 'Meetings' },
   submitted: { icon: FileText, color: 'text-purple-500', title: 'Proposals' },

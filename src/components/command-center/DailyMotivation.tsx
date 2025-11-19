@@ -1,51 +1,62 @@
+// src/components/command-center/DailyMotivation.tsx
 'use client';
 
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'; // CORRECTED
+import { Button } from '@/components/ui/button'; // CORRECTED
+import { commandCenterService } from '@/services/commandCenterService'; // CORRECTED
+import type { Motivation } from '@/types'; // CORRECTED
+import { RefreshCcw } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { commandCenterService } from 'src/services/commandCenterService';
-import type { Motivation } from 'src/types';
 
-export function DailyMotivation() {
+interface DailyMotivationProps {
+  // Add any props if needed
+}
+
+export function DailyMotivation({}: DailyMotivationProps) {
   const [motivation, setMotivation] = useState<Motivation | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadRandomMotivation();
-  }, []);
-
-  const loadRandomMotivation = async () => {
+  const fetchRandomMotivation = async () => {
+    setIsLoading(true);
+    setError(null);
     try {
       const data = await commandCenterService.getRandomMotivation();
       setMotivation(data);
-    } catch (error) {
-      console.error('Error loading motivation:', error);
+    } catch (err: any) {
+      setError(err.message);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-400"></div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    fetchRandomMotivation();
+  }, []);
 
-  if (!motivation) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-gray-400 text-sm">No motivations yet. Add some inspiring quotes!</p>
-      </div>
-    );
-  }
+  if (isLoading) return <LoadingSpinner />;
+  if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <div className="space-y-3">
-      <blockquote className="text-gray-200 italic text-lg">
-        "{motivation.quote}"
-      </blockquote>
-      {motivation.author && (
-        <cite className="text-gray-500 text-sm">— {motivation.author}</cite>
+    <div className="bg-background-secondary p-6 rounded-lg shadow-sm h-full flex flex-col items-center justify-center text-center">
+      <h2 className="text-xl font-semibold text-foreground mb-4">Daily Motivation</h2>
+      {motivation ? (
+        <>
+          <p className="text-lg font-medium text-foreground mb-4">
+            "{motivation.quote}"
+          </p>
+          {motivation.author && (
+            <p className="text-sm text-foreground-muted mb-4">
+              - {motivation.author}
+            </p>
+          )}
+          <Button onClick={fetchRandomMotivation} disabled={isLoading}>
+            {isLoading ? <LoadingSpinner className="h-4 w-4" /> : <RefreshCcw className="h-4 w-4 mr-2" />}
+            Refresh Quote
+          </Button>
+        </>
+      ) : (
+        <p className="text-foreground-muted">No motivation available.</p>
       )}
     </div>
   );

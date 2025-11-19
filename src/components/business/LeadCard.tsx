@@ -1,115 +1,134 @@
+// src/components/business/LeadCard.tsx
 'use client';
 
+import { Button } from '@/components/ui/button';
+import { cn, formatCurrency } from '@/lib/utils';
+import { useBusinessStore } from '@/store/businessStore';
+import type { Lead } from '@/types';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { format } from 'date-fns';
-import { Building, Edit, Mail, Phone, Trash2 } from 'lucide-react';
-import { Lead } from '../../types';
-import { Button } from '../ui/button';
-import { Card } from '../ui/card';
+import { Building2, CheckCircle, DollarSign, Edit2, GripVertical, Trash2 } from 'lucide-react';
 
 interface LeadCardProps {
   lead: Lead;
-  onEdit: () => void;
-  onDelete: () => void;
+  onEdit: (lead: Lead) => void;
+  onDelete: (leadId: string) => void;
   isDragging?: boolean;
 }
 
-export function LeadCard({ lead, onEdit, onDelete, isDragging }: LeadCardProps) {
+export function LeadCard({ lead, onEdit, onDelete, isDragging = false }: LeadCardProps) {
   const {
     attributes,
     listeners,
     setNodeRef,
     transform,
     transition,
-    isDragging: sortableIsDragging,
+    isDragging: isSortableDragging,
   } = useSortable({ id: lead.id });
+
+  const { convertLeadToClient } = useBusinessStore();
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    opacity: isSortableDragging ? 0.5 : 1,
   };
 
-  const isCardDragging = isDragging || sortableIsDragging;
+  const handleConvert = async () => {
+    if (window.confirm(`Convert "${lead.name}" to a client?`)) {
+      await convertLeadToClient(lead.id);
+    }
+  };
 
   return (
-    <Card
+    <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
-      className={`p-4 cursor-grab active:cursor-grabbing transition-shadow hover:shadow-md ${
-        isCardDragging ? 'opacity-50 shadow-lg' : ''
-      }`}
+      className={cn(
+        'bg-background-tertiary border border-border rounded-lg p-3 group hover:border-primary/50 transition-all',
+        isDragging ? 'shadow-lg' : ''
+      )}
     >
-      <div className="space-y-3">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <h4 className="font-medium text-gray-900 dark:text-white">{lead.name}</h4>
-            {lead.company && (
-              <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400 mt-1">
-                <Building className="h-3 w-3" />
-                {lead.company}
-              </div>
-            )}
-          </div>
-          <div className="flex gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit();
-              }}
-              className="h-8 w-8 p-0"
-            >
-              <Edit className="h-3 w-3" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete();
-              }}
-              className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
-            >
-              <Trash2 className="h-3 w-3" />
-            </Button>
-          </div>
-        </div>
+      <div className="flex items-start gap-2">
+        {/* Drag Handle */}
+        <button
+          className="mt-1 cursor-grab active:cursor-grabbing text-foreground-muted hover:text-foreground"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="w-4 h-4" />
+        </button>
 
-        <div className="space-y-2">
-          {lead.email && (
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-              <Mail className="h-3 w-3" />
-              <span className="truncate">{lead.email}</span>
+        <div className="flex-1 min-w-0">
+          {/* Lead Name */}
+          <h4 className="font-semibold text-foreground truncate mb-1">
+            {lead.name}
+          </h4>
+
+          {/* Company */}
+          {lead.company && (
+            <div className="flex items-center gap-1 text-sm text-foreground-secondary mb-2">
+              <Building2 className="w-3 h-3" />
+              <span className="truncate">{lead.company}</span>
             </div>
           )}
-          {lead.phone && (
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-              <Phone className="h-3 w-3" />
-              {lead.phone}
+
+          {/* Product Interest */}
+          {lead.product_interest && (
+            <p className="text-xs text-foreground-muted mb-2 line-clamp-1">
+              {lead.product_interest}
+            </p>
+          )}
+
+          {/* Next Step */}
+          {lead.next_step && (
+            <p className="text-xs text-primary mb-2">
+              Next: {lead.next_step}
+            </p>
+          )}
+
+          {/* Value */}
+          {lead.value !== null && lead.value !== undefined && (
+            <div className="flex items-center gap-1 text-sm font-medium text-green-400">
+              <DollarSign className="w-3 h-3" />
+              <span>{formatCurrency(lead.value)}</span>
             </div>
           )}
         </div>
 
-        {lead.value && (
-          <div className="text-sm font-medium text-green-600 dark:text-green-400">
-            ${lead.value.toLocaleString()}
-          </div>
-        )}
-
-        {lead.next_step && (
-          <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
-            Next: {lead.next_step}
-          </div>
-        )}
-
-        <div className="text-xs text-gray-500 dark:text-gray-400">
-          {format(new Date(lead.created_at), 'MMM d, yyyy')}
+        {/* Actions */}
+        <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          {lead.stage !== 'approved' && lead.stage !== 'rejected' && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleConvert}
+              className="h-7 w-7 p-0 text-green-400 hover:text-green-300"
+              title="Convert to Client"
+            >
+              <CheckCircle className="w-3 h-3" />
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onEdit(lead)}
+            className="h-7 w-7 p-0"
+            title="Edit Lead"
+          >
+            <Edit2 className="w-3 h-3" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDelete(lead.id)}
+            className="h-7 w-7 p-0 text-red-400 hover:text-red-300"
+            title="Delete Lead"
+          >
+            <Trash2 className="w-3 h-3" />
+          </Button>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }

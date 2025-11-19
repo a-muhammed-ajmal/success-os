@@ -1,90 +1,101 @@
+// src/components/command-center/PrioritiesBlock.tsx
 'use client';
 
-import { Button } from 'components/ui/button';
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'; // CORRECTED
+import { SectionHeader } from '@/components/shared/SectionHeader'; // CORRECTED
+import { Button } from '@/components/ui/button'; // CORRECTED
+import { cn } from '@/lib/utils'; // CORRECTED
+import { commandCenterService } from '@/services/commandCenterService'; // CORRECTED
+import type { Task } from '@/types'; // CORRECTED
+import { differenceInDays, format } from 'date-fns';
+import { AlertCircle, CheckCircle2, Clock } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { commandCenterService } from 'src/services/commandCenterService';
-import type { Task } from 'src/types';
 
-export function PrioritiesBlock() {
+interface PrioritiesBlockProps {
+  // Add any props if needed
+}
+
+export function PrioritiesBlock({}: PrioritiesBlockProps) {
   const [urgentTasks, setUrgentTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchUrgentTasks = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await commandCenterService.getUrgentTasks();
+      setUrgentTasks(data);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    loadUrgentTasks();
+    fetchUrgentTasks();
   }, []);
 
-  const loadUrgentTasks = async () => {
-    try {
-      const tasks = await commandCenterService.getUrgentTasks();
-      setUrgentTasks(tasks);
-    } catch (error) {
-      console.error('Error loading urgent tasks:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleCompleteTask = async (taskId: string) => {
+    setIsLoading(true);
+    setError(null);
     try {
       await commandCenterService.completeTask(taskId);
-      await loadUrgentTasks(); // Refresh the list
-    } catch (error) {
-      console.error('Error completing task:', error);
+      setUrgentTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="bg-background-secondary border border-border rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Priorities</h3>
-        <div className="animate-pulse space-y-3">
-          <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-          <div className="h-4 bg-gray-300 rounded w-1/2"></div>
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return <LoadingSpinner />;
+  if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <div className="bg-background-secondary border border-border rounded-lg p-6">
-      <h3 className="text-lg font-semibold text-foreground mb-4">Priorities</h3>
+    <div className="bg-background-secondary p-6 rounded-lg shadow-sm h-full flex flex-col">
+      <SectionHeader title="Priorities" description="Your most urgent tasks." className="mb-4" />
+
       {urgentTasks.length === 0 ? (
-        <p className="text-foreground-muted text-sm">No urgent tasks at the moment. Great job!</p>
+        <p className="text-foreground-muted flex-grow">No urgent tasks right now. Great job!</p>
       ) : (
-        <div className="space-y-3">
-          {urgentTasks.map((task) => (
-            <div key={task.id} className="flex items-center justify-between p-3 bg-background border border-border rounded-lg">
-              <div className="flex-1">
-                <h4 className="font-medium text-foreground">{task.title}</h4>
-                {task.description && (
-                  <p className="text-sm text-foreground-muted mt-1">{task.description}</p>
-                )}
-                <div className="flex items-center gap-2 mt-2">
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    task.priority === 'urgent' ? 'bg-red-100 text-red-800' :
-                    task.priority === 'high' ? 'bg-orange-100 text-orange-800' :
-                    'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {task.priority}
-                  </span>
-                  {task.due_date && (
-                    <span className="text-xs text-foreground-muted">
-                      Due: {new Date(task.due_date).toLocaleDateString()}
-                    </span>
-                  )}
+        <div className="space-y-4 flex-grow">
+          {urgentTasks.map((task) => {
+            const daysRemaining = task.due_date ? differenceInDays(new Date(task.due_date), new Date()) : null;
+            const isOverdue = daysRemaining !== null && daysRemaining < 0;
+
+            return (
+              <div key={task.id} className="flex items-center justify-between p-3 bg-background-tertiary rounded-lg border border-border">
+                <div className="flex items-center gap-3">
+                  <span className={cn(
+                    "w-3 h-3 rounded-full",
+                    task.priority === 'urgent' ? 'bg-red-500' : task.priority === 'high' ? 'bg-orange-500' : 'bg-yellow-500'
+                  )} />
+                  <div>
+                    <p className="font-medium text-foreground">{task.title}</p>
+                    {task.due_date && (
+                      <p className={cn("text-sm text-foreground-muted flex items-center gap-1 mt-1", isOverdue && "text-red-400")}>
+                        {isOverdue ? <AlertCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                        Due: {format(new Date(task.due_date), 'MMM dd')}
+                        {daysRemaining !== null && (
+                          <span className="ml-1">({isOverdue ? `${Math.abs(daysRemaining)} days overdue` : `${daysRemaining} days left`})</span>
+                        )}
+                      </p>
+                    )}
+                  </div>
                 </div>
+                <Button variant="ghost" size="sm" onClick={() => handleCompleteTask(task.id)} disabled={isLoading}>
+                  {isLoading ? <LoadingSpinner className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4 text-green-400" />}
+                </Button>
               </div>
-              <Button
-                onClick={() => handleCompleteTask(task.id)}
-                size="sm"
-                className="ml-4"
-              >
-                Complete
-              </Button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
+      <Button variant="secondary" className="mt-6" onClick={fetchUrgentTasks} disabled={isLoading}>
+        Refresh Priorities
+      </Button>
     </div>
   );
 }

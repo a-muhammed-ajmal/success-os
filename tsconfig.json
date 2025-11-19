@@ -27,7 +27,6 @@
       "@/*": [
         "./src/*"
       ],
-      // Explicitly define aliases for top-level folders within 'src'
       "@/components/*": [
         "./src/components/*"
       ],
@@ -42,7 +41,7 @@
       ],
       "@/types": [
         "./src/types/index.ts"
-      ] // Point directly to index.ts
+      ]
     }
   },
   "include": [
