@@ -1,3 +1,4 @@
+// app/(main)/habits/page.tsx
 'use client';
 
 import { HabitEditorModal } from '@/components/habits/HabitEditorModal';

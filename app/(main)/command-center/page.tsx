@@ -5,11 +5,13 @@ import { DailyDisciplineBank } from '@/components/command-center/DailyDiscipline
 import { DailyMotivation } from '@/components/command-center/DailyMotivation';
 import { PrioritiesBlock } from '@/components/command-center/PrioritiesBlock';
 import { QuickAddTransaction } from '@/components/command-center/QuickAddTransaction';
-import { supabase } from '@/lib/supabase/client'; // Corrected import
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
+import { SectionHeader } from '@/components/shared/SectionHeader';
+import { supabase } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
 
-// Assuming these components and services exist and are functional
-// This page primarily orchestrates the display of Command Center widgets.
+// Assuming seedUserData exists in '@/lib/seedData'
+// import { seedUserData } from '@/lib/seedData'; // Uncomment if you implement seed data logic
 
 export default function CommandCenterPage() {
   const [userId, setUserId] = useState<string | null>(null);
@@ -49,15 +51,13 @@ export default function CommandCenterPage() {
 
   if (!isReady) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-foreground-muted">Loading Command Center...</p>
-      </div>
+      <LoadingSpinner className="h-screen" />
     );
   }
 
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold text-foreground">Command Center</h1>
+      <SectionHeader title="Command Center" description="Your daily overview and quick actions." />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Priorities Block */}
@@ -78,6 +78,7 @@ export default function CommandCenterPage() {
       </div>
 
       {/* Placeholder for other Command Center widgets */}
+      {/* Example structure, uncomment and implement as needed */}
       {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="bg-background-secondary p-6 rounded-lg shadow-sm">
           <h2 className="text-xl font-semibold text-foreground mb-4">Upcoming Events</h2>

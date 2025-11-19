@@ -28,6 +28,8 @@ export default function BusinessPage() {
     updateLeadStage,
     isLoading,
     error,
+    setSelectedLead,
+    setSelectedClient,
   } = useBusinessStore();
 
   const [isAddLeadModalOpen, setIsAddLeadModalOpen] = useState(false);

@@ -1,19 +1,21 @@
-import { ReactNode } from 'react';
+// src/components/shared/SectionHeader.tsx
+import { cn } from '@/lib/utils';
 
 interface SectionHeaderProps {
   title: string;
-  description: string;
-  actions?: ReactNode;
+  description?: string;
+  actions?: React.ReactNode;
+  className?: string;
 }
 
-export function SectionHeader({ title, description, actions }: SectionHeaderProps) {
+export function SectionHeader({ title, description, actions, className }: SectionHeaderProps) {
   return (
-    <div className="flex justify-between items-center mb-6">
+    <div className={cn("flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6", className)}>
       <div>
-        <h1 className="text-2xl font-bold text-foreground">{title}</h1>
-        <p className="text-muted-foreground">{description}</p>
+        <h2 className="text-2xl font-bold text-foreground">{title}</h2>
+        {description && <p className="text-foreground-secondary mt-1">{description}</p>}
       </div>
-      {actions}
+      {actions && <div className="flex-shrink-0">{actions}</div>}
     </div>
   );
 }
