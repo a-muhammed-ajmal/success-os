@@ -48,8 +48,11 @@ export interface Transaction {
   type: 'income' | 'expense';
   amount: number;
   category: string;
+  subcategory: string | null;
   description: string | null;
-  date: string;
+  date: string; // ISO date string
+  payment_method: string | null;
+  is_recurring: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -105,6 +108,7 @@ export interface Client {
   phone: string | null;
   company: string | null;
   address: string | null;
+  contact_details: Record<string, unknown> | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
@@ -132,7 +136,7 @@ export interface Service {
   eligibility: string | null;
   required_documents: string[];
   interest_rate: string | null;
-  features: Record<string, string>;
+  features: Record<string, unknown> | null;
   brochure_url: string | null;
   is_active: boolean;
   created_at: string;
@@ -152,6 +156,236 @@ export interface SalesProject {
   end_date: string | null;
   created_at: string;
   updated_at: string;
+}
+
+// ============================================================================
+// FINANCE
+// ============================================================================
+export type TransactionType = 'income' | 'expense';
+
+export interface Transaction {
+  id: string;
+  user_id: string;
+  type: TransactionType;
+  amount: number;
+  category: string;
+  subcategory: string | null;
+  description: string | null;
+  date: string; // ISO date string
+  payment_method: string | null;
+  is_recurring: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export type SavingGoalPriority = 'low' | 'medium' | 'high';
+
+export interface SavingGoal {
+  id: string;
+  user_id: string;
+  name: string;
+  target_amount: number;
+  current_amount: number;
+  deadline: string | null; // ISO date string
+  category: string | null;
+  priority: SavingGoalPriority;
+  is_completed: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Budget {
+  id: string;
+  user_id: string;
+  month: string; // ISO date string (first day of month)
+  category: string;
+  allocated_amount: number;
+  spent_amount: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MonthlyStats {
+  totalIncome: number;
+  totalExpense: number;
+  netCashFlow: number;
+  incomeByCategory: Record<string, number>;
+  expenseByCategory: Record<string, number>;
+}
+
+// ============================================================================
+// HABITS
+// ============================================================================
+export type RoutineType = 'morning' | 'work' | 'evening' | 'daily' | 'custom';
+
+export type HabitFrequency = 'daily' | 'weekly' | 'custom';
+
+export interface Habit {
+  id: string;
+  user_id: string;
+  name: string;
+  routine_type: RoutineType | null;
+  description: string | null;
+  frequency: HabitFrequency;
+  target_days_per_week: number;
+  completed_days: number;
+  streak: number;
+  is_active: boolean;
+  color: string;
+  order_index: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface HabitCompletion {
+  id: string;
+  habit_id: string;
+  date: string; // ISO date string
+  completed: boolean;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface HabitProgress {
+  habitId: string;
+  weeklyProgress: number;
+  monthlyProgress: number;
+  currentStreak: number;
+  longestStreak: number;
+}
+
+// ============================================================================
+// MINDSET & GROWTH
+// ============================================================================
+export interface Affirmation {
+  id: string;
+  user_id: string;
+  text: string;
+  category: string | null;
+  is_active: boolean;
+  order_index: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Motivation {
+  id: string;
+  user_id: string;
+  quote: string;
+  author: string | null;
+  category: string | null;
+  is_active: boolean;
+  created_at: string;
+}
+
+// ============================================================================
+// RELATIONSHIP
+// ============================================================================
+export type ImportantDateType = 'birthday' | 'anniversary' | 'celebration' | 'other';
+
+export interface ImportantDate {
+  id: string;
+  user_id: string;
+  person_name: string;
+  relationship: string | null;
+  type: ImportantDateType;
+  date: string; // ISO date string
+  recurring: boolean;
+  reminder_days_before: number;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type FuturePlanType = 'trip' | 'celebration' | 'family_goal' | 'other';
+
+export interface FuturePlan {
+  id: string;
+  user_id: string;
+  title: string;
+  type: FuturePlanType | null;
+  description: string | null;
+  target_date: string | null; // ISO date string
+  estimated_cost: number | null;
+  status: 'planning' | 'booked' | 'completed' | 'cancelled';
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RelationshipExpense {
+  id: string;
+  user_id: string;
+  title: string;
+  amount: number;
+  category: string | null;
+  person_name: string | null;
+  date: string; // ISO date string
+  notes: string | null;
+  created_at: string;
+}
+
+// ============================================================================
+// PLANNING & REFLECTION
+// ============================================================================
+export type VisionItemType = 'vision' | 'goal_1y' | 'goal_5y' | 'goal_10y';
+
+export interface VisionItem {
+  id: string;
+  user_id: string;
+  type: VisionItemType;
+  category: string | null;
+  title: string;
+  content: string;
+  order_index: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WeeklyReview {
+  id: string;
+  user_id: string;
+  week_start: string; // ISO date string
+  week_end: string;   // ISO date string
+  what_went_well: string | null;
+  what_didnt: string | null;
+  learnings: string | null;
+  key_metrics: Record<string, unknown> | null;
+  wins: string[];
+  challenges: string[];
+  next_week_focus: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MonthlyPlan {
+  id: string;
+  user_id: string;
+  month: string; // ISO date string (first day of month)
+  goals: string[];
+  focus_categories: string[];
+  key_objectives: string | null;
+  success_criteria: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ============================================================================
+// UI Store & General
+// ============================================================================
+export interface UIStore {
+  isSidebarOpen: boolean;
+  isMobileMenuOpen: boolean;
+  activeModal: string | null;
+  theme: 'dark' | 'light';
+  toggleSidebar: () => void;
+  closeSidebar: () => void;
+  openSidebar: () => void;
+  toggleMobileMenu: () => void;
+  closeMobileMenu: () => void;
+  openModal: (modalId: string) => void;
+  closeModal: () => void;
+  setTheme: (theme: 'dark' | 'light') => void;
 }
 
 export interface BusinessStore {

@@ -1,0 +1,71 @@
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { RelationshipExpense } from '@/types';
+import { Calendar, DollarSign, User } from 'lucide-react';
+import React from 'react';
+
+interface RelationshipExpenseCardProps {
+  expense: RelationshipExpense;
+  onEdit?: (expense: RelationshipExpense) => void;
+  onDelete?: (id: string) => void;
+}
+
+export const RelationshipExpenseCard: React.FC<RelationshipExpenseCardProps> = ({
+  expense,
+  onEdit,
+  onDelete,
+}) => {
+  return (
+    <Card className="h-full">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <CardTitle className="text-lg font-semibold line-clamp-2">
+            {expense.description}
+          </CardTitle>
+          <Badge variant="outline">
+            <DollarSign className="h-3 w-3 mr-1" />
+            ${expense.amount.toFixed(2)}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <User className="h-4 w-4" />
+          <span>{expense.person_name}</span>
+        </div>
+
+        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <Badge variant="secondary">{expense.category}</Badge>
+          <div className="flex items-center gap-1">
+            <Calendar className="h-4 w-4" />
+            <span>{new Date(expense.date).toLocaleDateString()}</span>
+          </div>
+        </div>
+
+        {(onEdit || onDelete) && (
+          <div className="flex gap-2 pt-2">
+            {onEdit && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onEdit(expense)}
+              >
+                Edit
+              </Button>
+            )}
+            {onDelete && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => onDelete(expense.id)}
+              >
+                Delete
+              </Button>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
