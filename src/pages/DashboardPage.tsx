@@ -1,27 +1,40 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import GreetingHeader from '../components/dashboard/GreetingHeader';
 import KickstartQuotes from '../components/dashboard/KickstartQuotes';
 import DashboardKPICards from '../components/dashboard/DashboardKPICards';
-import TodaysFocus from '../components/tasks/TodaysFocus'; // New component
+import TodaysFocus from '../components/tasks/TodaysFocus';
 import WinnersMindset from '../components/dashboard/WinnersMindset';
-// import GetThingsDone from '../components/dashboard/GetThingsDone'; // Disabling for now or updating later
 import AddTaskModal from '../components/tasks/AddTaskModal';
 import { createTask } from '../services/tasksService';
+import { getDashboardStats } from '../services/dashboardService';
 import type { Task } from '../types/database';
 
 export default function DashboardPage() {
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [stats, setStats] = useState({
+    dealsProcessing: 0,
+    daysRemaining: 0,
+    doneSuccessfully: 0
+  });
+
+  useEffect(() => {
+    loadStats();
+  }, []);
+
+  const loadStats = async () => {
+    try {
+      const data = await getDashboardStats();
+      setStats(data);
+    } catch (error) {
+      console.error('Error loading dashboard stats:', error);
+    }
+  };
 
   const handleAddTask = async (taskData: Omit<Task, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
     await createTask(taskData);
     setShowAddTaskModal(false);
-    // Ideally trigger a refresh in TodaysFocus, but it fetches on mount/update logic.
-    // Since TodaysFocus loads its own data, we might need a context or signal to refresh it.
-    // For now, simple page reload or window event could work, or we lift state up.
-    // Given the component structure, lifting state is better but TodaysFocus is self-contained.
-    // I'll make TodaysFocus accept a 'refreshTrigger' prop or similar, or just force reload for MVP.
-    window.location.reload(); // Quick fix for MVP to ensure "Today's Focus" updates immediately if a new focus task is added
+    window.location.reload();
   };
 
   return (
@@ -29,9 +42,9 @@ export default function DashboardPage() {
       <GreetingHeader userName="Ajmal" />
       <KickstartQuotes />
       <DashboardKPICards
-        dealsProcessing={0} // To be connected to real data later
-        daysRemaining={0}
-        doneSuccessfully={0}
+        dealsProcessing={stats.dealsProcessing}
+        daysRemaining={stats.daysRemaining}
+        doneSuccessfully={stats.doneSuccessfully}
       />
 
       <div className="mb-8">
@@ -44,8 +57,6 @@ export default function DashboardPage() {
       </div>
 
       <WinnersMindset />
-
-      {/* <GetThingsDone /> - Can be re-enabled when updated to use tasksService */}
 
       <AddTaskModal
         isOpen={showAddTaskModal}

@@ -62,11 +62,22 @@ function App() {
         onAddTask={() => setShowGlobalAddModal(true)}
         onAddLead={() => {
           setCurrentPage('professional');
-          // Ideally trigger add lead modal here, but for now just nav
+          // In a future update, we can use a context or query param to auto-open the Add Modal
+          // For now, navigating to the leads page is the expected behavior
+          window.scrollTo(0, 0);
         }}
-        onAddIncome={() => console.log('Add Income')}
-        onAddExpense={() => console.log('Add Expense')}
-        onAddNote={() => console.log('Add Note')}
+        onAddIncome={() => {
+          // Future: Open Add Income Modal
+          console.log('Add Income');
+        }}
+        onAddExpense={() => {
+          // Future: Open Add Expense Modal
+          console.log('Add Expense');
+        }}
+        onAddNote={() => {
+           // Future: Open Add Note Modal
+           console.log('Add Note');
+        }}
       />
 
       <AddTaskModal
