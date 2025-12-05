@@ -1,0 +1,6 @@
+src/components/tasks/TodaysFocus.tsx(36,14): error TS2345: Argument of type '{ status: string; id: number; user_id: string; created_at: string; updated_at: string; title: string; description: string | null; due_date: string | null; due_time: string | null; priority: TaskPriority; ... 5 more ...; subtasks: Subtask[] | null; }[]' is not assignable to parameter of type 'SetStateAction<Task[]>'.
+  Type '{ status: string; id: number; user_id: string; created_at: string; updated_at: string; title: string; description: string | null; due_date: string | null; due_time: string | null; priority: TaskPriority; ... 5 more ...; subtasks: Subtask[] | null; }[]' is not assignable to type 'Task[]'.
+    Type '{ status: string; id: number; user_id: string; created_at: string; updated_at: string; title: string; description: string | null; due_date: string | null; due_time: string | null; priority: TaskPriority; ... 5 more ...; subtasks: Subtask[] | null; }' is not assignable to type 'Task'.
+      Types of property 'status' are incompatible.
+        Type 'string' is not assignable to type 'TaskStatus'.
+src/pages/TasksPage.tsx(4,32): error TS6133: 'deleteTask' is declared but its value is never read.

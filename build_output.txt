@@ -1,0 +1,17 @@
+src/components/dashboard/GetThingsDone.tsx(13,18): error TS2367: This comparison appears to be unintentional because the types 'TaskPriority' and '"Focus"' have no overlap.
+src/components/tasks/AddTaskModal.tsx(1,31): error TS1484: 'FormEvent' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/components/tasks/AddTaskModal.tsx(177,13): error TS2322: Type '{ label: string; checked: boolean; onChange: (checked: boolean) => void; description: string; }' is not assignable to type 'IntrinsicAttributes & FormToggleProps'.
+  Property 'checked' does not exist on type 'IntrinsicAttributes & FormToggleProps'.
+src/components/tasks/TodaysFocus.tsx(36,14): error TS2345: Argument of type '{ status: string; id: number; user_id: string; created_at: string; updated_at: string; title: string; description: string | null; due_date: string | null; due_time: string | null; priority: TaskPriority; ... 5 more ...; subtasks: Subtask[] | null; }[]' is not assignable to parameter of type 'SetStateAction<Task[]>'.
+  Type '{ status: string; id: number; user_id: string; created_at: string; updated_at: string; title: string; description: string | null; due_date: string | null; due_time: string | null; priority: TaskPriority; ... 5 more ...; subtasks: Subtask[] | null; }[]' is not assignable to type 'Task[]'.
+    Type '{ status: string; id: number; user_id: string; created_at: string; updated_at: string; title: string; description: string | null; due_date: string | null; due_time: string | null; priority: TaskPriority; ... 5 more ...; subtasks: Subtask[] | null; }' is not assignable to type 'Task'.
+      Types of property 'status' are incompatible.
+        Type 'string' is not assignable to type 'TaskStatus'.
+src/pages/TasksPage.tsx(2,18): error TS6133: 'Filter' is declared but its value is never read.
+src/pages/TasksPage.tsx(3,1): error TS6133: 'GreetingHeader' is declared but its value is never read.
+src/pages/TasksPage.tsx(52,9): error TS6133: 'handleDeleteTask' is declared but its value is never read.
+src/pages/TasksPage.tsx(88,22): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type 'Record<TaskPriority, number>'.
+src/pages/TasksPage.tsx(89,22): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type 'Record<TaskPriority, number>'.
+src/services/tasksService.ts(2,21): error TS6196: 'TaskStatus' is declared but never used.
+src/services/tasksService.ts(2,33): error TS6196: 'TaskPriority' is declared but never used.
+src/services/tasksService.ts(27,9): error TS6133: 'today' is declared but its value is never read.

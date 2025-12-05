@@ -10,7 +10,7 @@ interface GetThingsDoneProps {
 export default function GetThingsDone({ tasks, onViewMore, onTaskToggle }: GetThingsDoneProps) {
   // Filter and sort: get first 10 tasks, sorted by due date (urgent first)
   const priorityTasks = tasks
-    .filter(t => t.priority !== 'Focus' && t.status !== 'Done')
+    .filter(t => !t.is_focus_task && t.status !== 'Done')
     .sort((a, b) => {
       if (!a.due_date) return 1;
       if (!b.due_date) return -1;

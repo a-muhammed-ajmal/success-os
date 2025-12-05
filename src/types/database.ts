@@ -47,10 +47,10 @@ export type GenderType =
   | 'Other';
 
 export type TaskPriority =
-  | 'Urgent'
-  | 'Important'
-  | 'Significant'
-  | 'Focus';
+  | 'P1'
+  | 'P2'
+  | 'P3'
+  | 'P4';
 
 export type TaskStatus =
   | 'Todo'
@@ -155,6 +155,12 @@ export interface Connection {
   iban_number: string | null;
 }
 
+export interface Subtask {
+  id: string;
+  title: string;
+  is_completed: boolean;
+}
+
 export interface Task {
   id: number;
   user_id: string;
@@ -163,9 +169,15 @@ export interface Task {
   title: string;
   description: string | null;
   due_date: string | null;
+  due_time: string | null;
   priority: TaskPriority;
   status: TaskStatus;
   is_focus_task: boolean;
+  focus_date: string | null; // For midnight reset logic
+  relation_id: number | null; // ID from connections table
+  project: string | null;
+  tags: string[] | null;
+  subtasks: Subtask[] | null;
 }
 
 export interface FinancialTransaction {
