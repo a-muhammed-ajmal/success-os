@@ -2,6 +2,7 @@ import { useState } from 'react';
 import MobileNavigation from './components/navigation/MobileNavigation';
 import DesktopSidebar from './components/navigation/DesktopSidebar';
 import DashboardPage from './pages/DashboardPage';
+import BusinessPage from './pages/BusinessPage';
 import FABMenu from './components/ui/FABMenu';
 
 function App() {
@@ -16,7 +17,7 @@ function App() {
       case 'overview':
         return <DashboardPage />;
       case 'professional':
-        return <div className="p-4">Professional (Coming Soon)</div>;
+        return <BusinessPage />;
       case 'finance':
         return <div className="p-4">Finance (Coming Soon)</div>;
       case 'wellness':
